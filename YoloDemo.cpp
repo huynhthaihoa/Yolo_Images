@@ -32,6 +32,7 @@ const auto NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
 void Yolo(cv::Mat frame, int NUM_CLASSES, int CONFIDENCE_THRESHOLD, int NMS_THRESHOLD, std::vector<cv::Mat> detections, std::vector<std::vector<int>>& indices, std::vector<std::vector<cv::Rect>>& boxes, std::vector<std::vector<float>>& scores)
 {
     //detect
+#if 0
     for (auto& output : detections)
     {
         const auto num_boxes = output.rows;
@@ -47,7 +48,7 @@ void Yolo(cv::Mat frame, int NUM_CLASSES, int CONFIDENCE_THRESHOLD, int NMS_THRE
             for (int c = 0; c < NUM_CLASSES; ++c)
             {
                 auto confidence = *output.ptr<float>(i, 5 + c);
-                if (confidence >= CONFIDENCE_THRESHOLD)
+                if (confidence > CONFIDENCE_THRESHOLD)
                 {
                     boxes[c].push_back(rect);
                     scores[c].push_back(confidence);
@@ -55,6 +56,34 @@ void Yolo(cv::Mat frame, int NUM_CLASSES, int CONFIDENCE_THRESHOLD, int NMS_THRE
             }
         }
     }
+#else   
+    for (size_t i = 0; i < detections.size(); ++i)
+    {
+        float* data = (float*)detections[i].data;
+        for (size_t j = 0; j < detections[i].rows; ++j, data += detections[i].cols)
+        {
+            cv::Mat score = detections[i].row(j).colRange(5, detections[i].cols);
+            cv::Point classIdPoint;
+            double confidence;
+
+            // Get the value and location of the maximum score
+            minMaxLoc(score, 0, &confidence, 0, &classIdPoint);
+
+            if (confidence > CONFIDENCE_THRESHOLD)
+            {
+                auto x = (float)(data[0] * frame.cols);
+                auto y = (float)(data[1] * frame.rows);
+                auto width = (float)(data[2] * frame.cols);
+                auto height = (float)(data[1] * frame.rows);
+                cv::Rect rect(x - width / 2, y - height / 2, width, height);
+                int c = classIdPoint.x;
+                boxes[c].push_back(rect);
+                scores[c].push_back(confidence);
+            }
+
+        }
+    }
+#endif
 
     //non-maximum suppress
     for (int c = 0; c < NUM_CLASSES; ++c)
