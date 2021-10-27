@@ -156,13 +156,22 @@ int main()
     cv::String cfgPath = ini.GetString("PRIMARY", "config", ""); //"model.cfg";
     cv::String weightPath = ini.GetString("PRIMARY", "weight", ""); //"model.weights";
     auto net = cv::dnn::readNetFromDarknet(cfgPath, weightPath);
+
+#if 1
     /*GPU mode*/
     net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
     net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
+#else
     /*CPU mode*/
-    //net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
-    //net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+    net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
+#endif
+    
     auto output_names = net.getUnconnectedOutLayersNames();
+
+    INIReader config(cfgPath);
+    int _width = config.GetInteger("net", "width", 608);
+    int _height = config.GetInteger("net", "height", 608);
     
     cv::Mat frame, blob;
     std::vector<cv::Mat> detections;
@@ -226,7 +235,7 @@ int main()
         }
 
         //auto total_start = std::chrono::steady_clock::now();
-        cv::dnn::blobFromImage(frame, blob, 0.00392, cv::Size(608, 608), cv::Scalar(), true, false, CV_32F);
+        cv::dnn::blobFromImage(frame, blob, 1 / 255.0, cv::Size(_width, _height), cv::Scalar(), true, false, CV_32F); //(1/255 to scale the pixel values to [0..1])
         net.setInput(blob);
 
         auto dnn_start = std::chrono::steady_clock::now();
