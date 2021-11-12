@@ -32,7 +32,7 @@ const auto NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
 void postprocess(cv::Mat frame, int NUM_CLASSES, int CONFIDENCE_THRESHOLD, int NMS_THRESHOLD, std::vector<cv::Mat> detections, std::vector<std::vector<int>>& indices, std::vector<std::vector<cv::Rect>>& boxes, std::vector<std::vector<float>>& scores)
 {
     //detect
-#if 0
+#if 1
     for (auto& output : detections)
     {
         const auto num_boxes = output.rows;
