@@ -32,7 +32,7 @@ const auto NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
 void postprocess(cv::Mat frame, int NUM_CLASSES, int CONFIDENCE_THRESHOLD, int NMS_THRESHOLD, std::vector<cv::Mat> detections, std::vector<std::vector<int>>& indices, std::vector<std::vector<cv::Rect>>& boxes, std::vector<std::vector<float>>& scores)
 {
     //detect
-#if 1
+#if 0
     for (auto& output : detections)
     {
         const auto num_boxes = output.rows;
@@ -74,7 +74,7 @@ void postprocess(cv::Mat frame, int NUM_CLASSES, int CONFIDENCE_THRESHOLD, int N
                 auto x = (float)(data[0] * frame.cols);
                 auto y = (float)(data[1] * frame.rows);
                 auto width = (float)(data[2] * frame.cols);
-                auto height = (float)(data[1] * frame.rows);
+                auto height = (float)(data[3] * frame.rows);
                 cv::Rect rect(x - width / 2, y - height / 2, width, height);
                 int c = classIdPoint.x;
                 boxes[c].push_back(rect);
