@@ -1,2 +1,2 @@
 # Yolo_Images
-A simple program to generate YOLO annotation files using YOLO inference model (input is images)
+A simple program to generate YOLO annotation file for each image from an image set using YOLO inference model
